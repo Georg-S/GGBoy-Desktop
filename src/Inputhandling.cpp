@@ -65,11 +65,30 @@ bool InputHandler::isRightPressed()
 	return m_inputState.rightButtonDown;
 }
 
-void InputHandler::update(long long nanoSecondsPassed)
+void InputHandler::update(const std::unordered_map<int, bool>& keyStates)
 {
 	m_inputState = {};
-	updateKeyboardInput();
+	updateKeyboardInput(keyStates);
 	updateControllerInput();
+}
+
+void InputHandler::updateKeyboardInput(const std::unordered_map<int, bool>& keyStates)
+{
+	auto buttonPressed = [&keyStates](int key) -> bool
+	{
+		if (keyStates.count(key))
+			return keyStates.at(key);
+		return false;
+	};
+
+	m_inputState.aButtonDown |= buttonPressed(Qt::Key::Key_O);
+	m_inputState.bButtonDown |= buttonPressed(Qt::Key::Key_P);
+	m_inputState.startButtonDown |= buttonPressed(Qt::Key::Key_Space);
+	m_inputState.selectButtonDown |= buttonPressed(Qt::Key::Key_Return);
+	m_inputState.upButtonDown |= buttonPressed(Qt::Key::Key_W);
+	m_inputState.downButtonDown |= buttonPressed(Qt::Key::Key_S);
+	m_inputState.leftButtonDown |= buttonPressed(Qt::Key::Key_A);
+	m_inputState.rightButtonDown |= buttonPressed(Qt::Key::Key_D);
 }
 
 void InputHandler::updateControllerInput()
@@ -91,19 +110,6 @@ void InputHandler::updateControllerInput()
 	m_inputState.downButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_DOWN) || joyStickDown;
 	m_inputState.leftButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_LEFT) || joyStickLeft;
 	m_inputState.rightButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || joyStickRight;
-}
-
-void InputHandler::updateKeyboardInput()
-{
-	m_inputState.aButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_O]);
-	m_inputState.bButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_P]);
-	m_inputState.startButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_SPACE]);
-	m_inputState.selectButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_RETURN]);
-	m_inputState.selectButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_RETURN]);
-	m_inputState.upButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_W]);
-	m_inputState.downButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_S]);
-	m_inputState.leftButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_A]);
-	m_inputState.rightButtonDown |= static_cast<bool>(m_keyStates[SDL_SCANCODE_D]);
 }
 
 bool InputHandler::controllerButtonPressed(SDL_GameControllerButton button)

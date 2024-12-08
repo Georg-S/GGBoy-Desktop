@@ -1,11 +1,17 @@
-#include "EmulatorMain.hpp"
+//#include "EmulatorMain.hpp"
+#include "MainWindow.hpp"
 
 // Needed because of SDL
 #undef main
 
 int main(int argc, char* argv[])
 {
-	EmulatorApplication application;
+	QApplication app(argc, argv);
+	MainWindow window;
+	window.show();
+	return app.exec();
+	//EmulatorApplication application;
 
-	return application.run();
+	//return application.run();
+	return 0;
 }

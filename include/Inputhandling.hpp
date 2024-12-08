@@ -2,6 +2,8 @@
 #include <SDL.h>
 #include <Input.hpp>
 #include <Emulator.hpp>
+#include <unordered_map>
+#include <QKeyEvent>
 
 
 class InputHandler : public ggb::Input
@@ -17,11 +19,11 @@ public:
 	bool isDownPressed() override;
 	bool isLeftPressed() override;
 	bool isRightPressed() override;
-	void update(long long nanoSecondsPassed);
+	void update(const std::unordered_map<int, bool>& keyStates);
 
 private:
+	void updateKeyboardInput(const std::unordered_map<int, bool>& keyStates);
 	void updateControllerInput();
-	void updateKeyboardInput();
 	bool controllerButtonPressed(SDL_GameControllerButton button);
 	struct InputState
 	{
