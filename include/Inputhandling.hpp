@@ -22,6 +22,7 @@ public:
 	void update(const std::unordered_map<int, bool>& keyStates);
 
 private:
+	void handleControllerConnectAndDisconnect();
 	void updateKeyboardInput(const std::unordered_map<int, bool>& keyStates);
 	void updateControllerInput();
 	bool controllerButtonPressed(SDL_GameControllerButton button);
@@ -40,4 +41,5 @@ private:
 	InputState m_inputState = {};
 	const Uint8* m_keyStates = SDL_GetKeyboardState(nullptr);
 	SDL_GameController* m_controller = nullptr;
+	int m_controllerID = 0;
 };

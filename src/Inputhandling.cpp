@@ -9,15 +9,6 @@ InputHandler::InputHandler()
 		fprintf(stderr, "Error initializing controller SDL_Error: %s\n", SDL_GetError());
 		return;
 	}
-
-	for (int i = 0; i < SDL_NumJoysticks(); i++)
-	{
-		if (SDL_IsGameController(i))
-		{
-			m_controller = SDL_GameControllerOpen(i);
-			return;
-		}
-	}
 }
 
 InputHandler::~InputHandler()
@@ -72,6 +63,46 @@ void InputHandler::update(const std::unordered_map<int, bool>& keyStates)
 	updateControllerInput();
 }
 
+void InputHandler::handleControllerConnectAndDisconnect()
+{
+	auto connectToFirstController = [this]()
+	{
+		if (m_controller) 
+		{
+			SDL_GameControllerClose(m_controller);
+			m_controller = nullptr;
+			m_controllerID = INT_MAX;
+		}
+
+		for (int i = 0; i < SDL_NumJoysticks(); i++)
+		{
+			if (SDL_IsGameController(i))
+			{
+				m_controller = SDL_GameControllerOpen(i);
+				m_controllerID = i;
+			}
+		}
+	};
+
+	SDL_Event sdlEvent = {};
+	// SDL_PollEvent also pumps the QT message queue which is ... unfortunate
+	// but shouldn't be a problem, since we are on a new thread,
+	// even though SDL_PollEvent should be called on the main thread only
+	while (SDL_PollEvent(&sdlEvent))
+	{
+		if (sdlEvent.type == SDL_CONTROLLERDEVICEADDED)
+		{
+			if (!m_controller)
+				connectToFirstController();
+		}
+		else if (sdlEvent.type == SDL_CONTROLLERDEVICEREMOVED)
+		{
+			if (m_controllerID == sdlEvent.cdevice.which)
+				connectToFirstController();
+		}
+	}
+}
+
 void InputHandler::updateKeyboardInput(const std::unordered_map<int, bool>& keyStates)
 {
 	auto buttonPressed = [&keyStates](int key) -> bool
@@ -93,6 +124,8 @@ void InputHandler::updateKeyboardInput(const std::unordered_map<int, bool>& keyS
 
 void InputHandler::updateControllerInput()
 {
+	handleControllerConnectAndDisconnect();
+
 	constexpr int joyStickThreshold = 20000;
 	auto xValue = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTX);
 	auto yValue = SDL_GameControllerGetAxis(m_controller, SDL_CONTROLLER_AXIS_LEFTY);
