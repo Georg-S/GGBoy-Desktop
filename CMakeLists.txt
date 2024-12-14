@@ -19,6 +19,7 @@ set(HEADERS
 	"include/Video.hpp"
 	"include/Inputhandling.hpp"
 	"include/EmulatorMain.hpp"
+	"include/InformationWindow.hpp"
 	)
 	
 set(SOURCES 
@@ -28,10 +29,12 @@ set(SOURCES
 	"src/Inputhandling.cpp"
 	"src/main.cpp"
 	"src/EmulatorMain.cpp"
+	"src/InformationWindow.cpp"
 	)
 	
 set(QT_UI_FILES
 	"include/MainWindow.ui"
+	"include/InformationWindow.ui"
 	)
 
 set(CMAKE_AUTOMOC ON)

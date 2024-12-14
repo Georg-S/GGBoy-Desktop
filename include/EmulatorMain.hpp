@@ -33,6 +33,7 @@ public:
 
 signals:
 	void renderedImage(QImage image);
+	void currentMaxSpeedup(double speedUp);
 
 protected:
 	void run() override;

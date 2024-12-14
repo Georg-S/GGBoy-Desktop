@@ -16,7 +16,9 @@ EmulatorThread::EmulatorThread(QObject* parent) : QThread(parent)
 	//m_tileDataRenderer = std::make_unique<SDLRenderer>(tileDataDimensions.width, tileDataDimensions.height, 4);
 	auto gameRenderer = std::make_unique<QTRenderer>(gameWindowDimensions.width, gameWindowDimensions.height);
 	m_gameRenderer = gameRenderer.get();
+	//loadROM(GAMES_BASE_PATH / "Teenage_Mutant_Hero_Turtles_3.gb");
 	loadROM(GAMES_BASE_PATH / "Pokemon_Kristall.gbc");
+	//loadROM(GAMES_BASE_PATH / "DragonBallZ.gbc");
 
 	m_emulator->setGameRenderer(std::move(gameRenderer));
 	m_emulator->setInput(std::move(inputHandler));
@@ -36,24 +38,38 @@ void EmulatorThread::postEvent(KeyEvent event)
 void EmulatorThread::run()
 {
 	long long lastTimeStamp = ggb::getCurrentTimeInNanoSeconds();
+	static constexpr long long NANO_SECONDS_PER_SECOND = 1000000000;
 	static constexpr long long INPUT_UPDATE_AFTER_NANOSECONDS = 10000000;
-	long long nanoSecondsCounter = 0;
+	constexpr static int UPDATE_AFTER_STEPS = 20;
+	int stepCounter = 0;
+	long long inputUpdateCounter = 0;
+	long long maxSpeedupCounter = 0;
 	while (true)
 	{
 		m_emulator->step();
+		if (m_gameRenderer->hasNewImage())
+			emit renderedImage(m_gameRenderer->getCurrentImage());
+
+		stepCounter++;
+		if (stepCounter < UPDATE_AFTER_STEPS)
+			continue;
+
+		stepCounter = 0;
 		auto currentTime = ggb::getCurrentTimeInNanoSeconds();
 		auto timePast = currentTime - lastTimeStamp;
 		lastTimeStamp = currentTime;
-		nanoSecondsCounter += timePast;
-		if (nanoSecondsCounter > INPUT_UPDATE_AFTER_NANOSECONDS)
+		inputUpdateCounter += timePast;
+		maxSpeedupCounter += timePast;
+		if (inputUpdateCounter > INPUT_UPDATE_AFTER_NANOSECONDS)
 		{
-			nanoSecondsCounter -= INPUT_UPDATE_AFTER_NANOSECONDS;
+			inputUpdateCounter -= INPUT_UPDATE_AFTER_NANOSECONDS;
 			updateInput();
 		}
 
-		if (m_gameRenderer->hasNewImage()) 
+		if (maxSpeedupCounter > NANO_SECONDS_PER_SECOND) 
 		{
-			emit renderedImage(m_gameRenderer->getCurrentImage());
+			maxSpeedupCounter -= NANO_SECONDS_PER_SECOND;
+			emit currentMaxSpeedup(m_emulator->getMaxSpeedup());
 		}
 	}
 }
@@ -111,7 +127,7 @@ void EmulatorThread::handleEmulatorKeyPress(int key)
 	{
 		if (m_emulator->emulationSpeed() == 1.0)
 		{
-			m_emulator->setEmulationSpeed(10.0);
+			m_emulator->setEmulationSpeed(30.0);
 			m_audioHandler->setAudioPlaying(false);
 		}
 		else

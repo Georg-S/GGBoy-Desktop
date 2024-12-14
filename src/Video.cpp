@@ -10,12 +10,12 @@ void QTRenderer::renderNewFrame(const ggb::FrameBuffer& framebuffer)
 	m_hasNewImage = true;
 	m_image = QImage(QSize(m_width, m_height), QImage::Format_RGB32);
 
-	for (int y = 0; y < framebuffer.m_buffer[0].size(); y++)
+	for (size_t y = 0; y < framebuffer.height(); y++)
 	{
-		QRgb* scanLine = reinterpret_cast<QRgb*>(m_image.scanLine(y));
-		for (int x = 0; x < framebuffer.m_buffer.size(); x++)
+		QRgb* scanLine = reinterpret_cast<QRgb*>(m_image.scanLine(static_cast<int>(y)));
+		for (size_t x = 0; x < framebuffer.width(); x++)
 		{
-			const auto& ggbColor = framebuffer.m_buffer[x][y];
+			const auto& ggbColor = framebuffer.getPixel(x, y);
 			scanLine[x] = qRgb(ggbColor.r, ggbColor.g, ggbColor.b);
 		}
 	}
