@@ -18,8 +18,6 @@ void InformationWindow::addSpeedup(double speedUp)
 		m_maxSpeedups.emplace_back(speedUp);
 	}
 
-	m_currentIndex++;
-
 	if (m_currentIndex == m_maxSizeForSpeedups) 
 	{
 		m_wrappedAround = true;
@@ -27,6 +25,7 @@ void InformationWindow::addSpeedup(double speedUp)
 	}
 
 	updateInformations();
+	m_currentIndex++;
 }
 
 void InformationWindow::updateInformations()

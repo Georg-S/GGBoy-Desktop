@@ -1,6 +1,8 @@
 #pragma once
 #include <QMainWindow>
 #include <QWindow>
+#include <QMessageBox>
+#include <QFileDialog>
 
 #include <memory>
 
@@ -14,12 +16,15 @@ class MainWindow : public QMainWindow
 	Q_OBJECT
 public:
 	MainWindow();
+	 ~MainWindow();
 public slots:
 	void currentMaxSpeedup(double speedUp);
 	void updateImage(QImage image);
-	void toggleInformationWindow();
+	void warning(QString errorString);
 
 private:
+	void openROM();
+	void toggleInformationWindow();
 	void keyPressEvent(QKeyEvent* event) override;
 	void keyReleaseEvent(QKeyEvent* event) override;
 

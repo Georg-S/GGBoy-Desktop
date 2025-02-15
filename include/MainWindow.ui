@@ -45,7 +45,6 @@
      <string>File</string>
     </property>
     <addaction name="actionOpenROM"/>
-    <addaction name="actionClose"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
