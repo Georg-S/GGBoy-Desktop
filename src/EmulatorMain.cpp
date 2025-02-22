@@ -422,13 +422,11 @@ void EmulatorThread::handleEmulatorKeyPress(int key)
 		m_emulator->muteChannel(2, !m_emulator->isChannelMuted(2));
 	if (key == Qt::Key::Key_F12)
 		m_emulator->muteChannel(3, !m_emulator->isChannelMuted(3));
-	if (key == Qt::Key::Key_Escape)
-		m_emulator->saveRAM(RAM_BASE_PATH / cartridgePath.filename());
 	if (key == Qt::Key::Key_T)
 	{
 		if (m_emulator->emulationSpeed() == 1.0)
 		{
-			m_emulator->setEmulationSpeed(10.0);
+			m_emulator->setEmulationSpeed(5.0);
 			m_audioHandler->setAudioPlaying(false);
 		}
 		else
