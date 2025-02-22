@@ -7,6 +7,12 @@ Basic graphical interface for the [GGBoy-Core](https://github.com/yourusername/g
 - Reset functionality
 - Speedup emulation
 
+## Getting Started
+Clone with submodules using:  
+```bash
+git clone --recurse-submodules https://github.com/Georg-S/ggboy-qt.git
+```
+
 ## Windows Build Requirements  
 1. **Qt 6** installed with MSVC2019 64-bit components  
 2. **SDL2** development libraries  
@@ -23,8 +29,6 @@ A Button = O
 B Button = P
 Start = Space
 Select = Enter
-Copy
-
 
 **System Controls**  
 - `R`: Hard reset  
