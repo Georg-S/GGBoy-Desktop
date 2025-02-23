@@ -1,0 +1,3 @@
+[submodule "GGBoy-Core"]
+	path = GGBoy-Core
+	url = https://github.com/Georg-S/GGBoy-Core

@@ -3,7 +3,7 @@ set(CMAKE_CXX_STANDARD 17)
 project(GGBoyDesktop)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_subdirectory(Core)
+add_subdirectory(GGBoy-Core)
 
 if	(WIN32)
 	set(SDL2_INCLUDE_DIRS $ENV{SDL2_INCLUDE})
