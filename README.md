@@ -1,7 +1,7 @@
-# GGBoy-Qt  
+# GGBoy-Desktop  
 **A Minimal Qt Frontend for GGBoy-Core**
 
-Basic graphical interface for the [GGBoy-Core](https://github.com/yourusername/ggboy-core) emulator, built with Qt 6 and SDL2. Provides essential playability with:  
+Basic graphical interface for the [GGBoy-Core](https://github.com/Georg-S/GGBoy-Core) emulator, built with Qt 6 and SDL2. Provides essential playability with:  
 - Savestates (4 slots via function keys)  
 - Real-time audio channel toggling  
 - Reset functionality
@@ -10,7 +10,7 @@ Basic graphical interface for the [GGBoy-Core](https://github.com/yourusername/g
 ## Getting Started
 Clone with submodules using:  
 ```bash
-git clone --recurse-submodules https://github.com/Georg-S/ggboy-qt.git
+git clone --recurse-submodules https://github.com/Georg-S/GGBoy-Desktop.git
 ```
 
 ## Windows Build Requirements  
@@ -37,6 +37,6 @@ Select = Enter
 - `F9-F12`: Toggle audio channels 1-4  
 
 ## Dependencies  
-- [GGBoy-Core](https://github.com/Georg-S/ggboy-core) (emulation core)  
-- Qt 6 Core/GUI/Widgets modules  
-- SDL2 (audio subsystem)  
+- [GGBoy-Core](https://github.com/Georg-S/GGBoy-Core) (emulation core)  
+- Qt 6
+- SDL2 (for audio and controller input)  
