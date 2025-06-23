@@ -24,11 +24,11 @@ git clone --recurse-submodules https://github.com/Georg-S/GGBoy-Desktop.git
 ## Controls  
 **Game Input**  
 
-⬆️⬇️⬅️➡️ = W S A D
-A Button = O
-B Button = P
-Start = Space
-Select = Enter
+-	⬆️⬇️⬅️➡️ = W S A D
+-	A Button = O
+-	B Button = P
+-	Start = Space
+-	Select = Enter
 
 **System Controls**  
 - `R`: Hard reset  
