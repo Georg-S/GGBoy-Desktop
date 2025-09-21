@@ -37,6 +37,13 @@ set(QT_UI_FILES
 	"include/InformationWindow.ui"
 	)
 
+
+source_group("\\Header Files" FILES ${HEADERS})
+source_group("\\Source Files" FILES ${SOURCES})
+source_group("UI Files" FILES ${QT_UI_FILES})
+# Put all other files via regex into the "Other" folder, mainly so that the solution doesn't get cluttered by Qt generated files
+source_group("Other" REGULAR_EXPRESSION "\\.h$|\\.cpp$|\\.stamp$|\\.rule$")
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)

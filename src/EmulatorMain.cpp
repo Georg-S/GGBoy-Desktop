@@ -435,4 +435,17 @@ void EmulatorThread::handleEmulatorKeyPress(int key)
 			m_audioHandler->setAudioPlaying(true);
 		}
 	}
+	if (key == Qt::Key::Key_Pause) 
+	{
+		if (m_emulator->isPaused()) 
+		{
+			m_emulator->resume();
+			m_audioHandler->setAudioPlaying(true);
+		}
+		else 
+		{
+			m_emulator->pause();
+			m_audioHandler->setAudioPlaying(false);
+		}
+	}
 }
