@@ -41,6 +41,7 @@ protected:
 	void run() override;
 
 private:
+	void performanceProfiling();
 	std::string getCartridgeName();
 	void loadRAM();
 	void loadRTC();
@@ -54,7 +55,7 @@ private:
 
 	std::unique_ptr<ggb::Emulator> m_emulator = nullptr;
 	std::unique_ptr<Audio> m_audioHandler = nullptr;
-	InputHandler* m_inputHandler = nullptr;
+	std::unique_ptr<InputHandler> m_inputHandler = nullptr;
 	//std::unique_ptr<QTRenderer> m_tileDataRenderer = nullptr;
 	QTRenderer* m_gameRenderer = nullptr;
 	bool m_quit = false;
@@ -63,4 +64,5 @@ private:
 	std::filesystem::path m_romToBeLoaded;
 	std::mutex m_inputMutex;
 	std::mutex m_emulatorEventsMutex;
+	static constexpr bool runPerformanceProfiling = false;
 };

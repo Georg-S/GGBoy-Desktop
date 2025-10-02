@@ -16,51 +16,16 @@ InputHandler::~InputHandler()
 	SDL_QuitSubSystem(SDL_INIT_GAMECONTROLLER);
 }
 
-bool InputHandler::isAPressed()
-{
-	return m_inputState.aButtonDown;
-}
-
-bool InputHandler::isBPressed()
-{
-	return m_inputState.bButtonDown;
-}
-
-bool InputHandler::isStartPressed()
-{
-	return m_inputState.startButtonDown;
-}
-
-bool InputHandler::isSelectPressed()
-{
-	return m_inputState.selectButtonDown;
-}
-
-bool InputHandler::isUpPressed()
-{
-	return m_inputState.upButtonDown;
-}
-
-bool InputHandler::isDownPressed()
-{
-	return m_inputState.downButtonDown;
-}
-
-bool InputHandler::isLeftPressed()
-{
-	return m_inputState.leftButtonDown;
-}
-
-bool InputHandler::isRightPressed()
-{
-	return m_inputState.rightButtonDown;
-}
-
 void InputHandler::update(const std::unordered_map<int, bool>& keyStates)
 {
 	m_inputState = {};
 	updateKeyboardInput(keyStates);
 	updateControllerInput();
+}
+
+ggb::GameboyInput InputHandler::getCurrentState() const
+{
+	return m_inputState;
 }
 
 void InputHandler::handleControllerConnectAndDisconnect()
@@ -112,14 +77,14 @@ void InputHandler::updateKeyboardInput(const std::unordered_map<int, bool>& keyS
 		return false;
 	};
 
-	m_inputState.aButtonDown |= buttonPressed(Qt::Key::Key_O);
-	m_inputState.bButtonDown |= buttonPressed(Qt::Key::Key_P);
-	m_inputState.startButtonDown |= buttonPressed(Qt::Key::Key_Space);
-	m_inputState.selectButtonDown |= buttonPressed(Qt::Key::Key_Return);
-	m_inputState.upButtonDown |= buttonPressed(Qt::Key::Key_W);
-	m_inputState.downButtonDown |= buttonPressed(Qt::Key::Key_S);
-	m_inputState.leftButtonDown |= buttonPressed(Qt::Key::Key_A);
-	m_inputState.rightButtonDown |= buttonPressed(Qt::Key::Key_D);
+	m_inputState.isAPressed |= buttonPressed(Qt::Key::Key_O);
+	m_inputState.isBPressed |= buttonPressed(Qt::Key::Key_P);
+	m_inputState.isStartPressed |= buttonPressed(Qt::Key::Key_Space);
+	m_inputState.isSelectPressed |= buttonPressed(Qt::Key::Key_Return);
+	m_inputState.isUpPressed |= buttonPressed(Qt::Key::Key_W);
+	m_inputState.isDownPressed |= buttonPressed(Qt::Key::Key_S);
+	m_inputState.isLeftPressed |= buttonPressed(Qt::Key::Key_A);
+	m_inputState.isRightPressed |= buttonPressed(Qt::Key::Key_D);
 }
 
 void InputHandler::updateControllerInput()
@@ -134,15 +99,14 @@ void InputHandler::updateControllerInput()
 	const bool joyStickDown = yValue > joyStickThreshold;
 	const bool joyStickUp = yValue < -joyStickThreshold;
 
-	m_inputState.aButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_A);
-	m_inputState.bButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_B);
-	m_inputState.startButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START);
-	m_inputState.selectButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_BACK);
-	m_inputState.selectButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_BACK);
-	m_inputState.upButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_UP) || joyStickUp;
-	m_inputState.downButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_DOWN) || joyStickDown;
-	m_inputState.leftButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_LEFT) || joyStickLeft;
-	m_inputState.rightButtonDown |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || joyStickRight;
+	m_inputState.isAPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_A);
+	m_inputState.isBPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_B);
+	m_inputState.isStartPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_START);
+	m_inputState.isSelectPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_BACK);
+	m_inputState.isUpPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_UP) || joyStickUp;
+	m_inputState.isDownPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_DOWN) || joyStickDown;
+	m_inputState.isLeftPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_LEFT) || joyStickLeft;
+	m_inputState.isRightPressed |= controllerButtonPressed(SDL_GameControllerButton::SDL_CONTROLLER_BUTTON_DPAD_RIGHT) || joyStickRight;
 }
 
 bool InputHandler::controllerButtonPressed(SDL_GameControllerButton button)

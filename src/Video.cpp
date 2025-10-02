@@ -7,6 +7,11 @@ QTRenderer::QTRenderer(int width, int height)
 
 void QTRenderer::renderNewFrame(const ggb::FrameBuffer& framebuffer)
 {
+	m_skipImageCounter++;
+	if (m_skipImageCounter < m_frameSkipCount)
+		return;
+
+	m_skipImageCounter = 0;
 	m_hasNewImage = true;
 	m_image = QImage(QSize(m_width, m_height), QImage::Format_RGB32);
 
@@ -30,4 +35,9 @@ QImage QTRenderer::getCurrentImage()
 {
 	m_hasNewImage = false;
 	return m_image;
+}
+
+void QTRenderer::setFrameSkip(int skipFrames)
+{
+	m_frameSkipCount = skipFrames;
 }

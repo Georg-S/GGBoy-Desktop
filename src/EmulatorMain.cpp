@@ -82,9 +82,9 @@ static std::vector<std::pair<std::filesystem::path, std::time_t>> getFilePaths(c
 	}
 
 	std::sort(files.begin(), files.end(), [](const std::pair<std::filesystem::path, std::time_t>& lhs, const std::pair<std::filesystem::path, std::time_t>& rhs)
-		{
-			return lhs.second > rhs.second;
-		});
+	{
+		return lhs.second > rhs.second;
+	});
 
 	if (files.empty())
 		return {};
@@ -96,8 +96,7 @@ EmulatorThread::EmulatorThread(QObject* parent) : QThread(parent)
 {
 	m_emulator = std::make_unique<ggb::Emulator>();
 	m_audioHandler = std::make_unique<Audio>(m_emulator->getSampleBuffer());
-	auto inputHandler = std::make_unique<InputHandler>();
-	m_inputHandler = inputHandler.get();
+	m_inputHandler = std::make_unique<InputHandler>();
 
 	auto tileDataDimensions = m_emulator->getTileDataDimensions();
 	auto gameWindowDimensions = m_emulator->getGameWindowDimensions();
@@ -106,7 +105,9 @@ EmulatorThread::EmulatorThread(QObject* parent) : QThread(parent)
 	m_gameRenderer = gameRenderer.get();
 
 	m_emulator->setGameRenderer(std::move(gameRenderer));
-	m_emulator->setInput(std::move(inputHandler));
+
+	if constexpr (runPerformanceProfiling)
+		performanceProfiling();
 }
 
 void EmulatorThread::setROM(std::filesystem::path path)
@@ -130,49 +131,62 @@ void EmulatorThread::quit()
 void EmulatorThread::run()
 {
 	static constexpr long long NANO_SECONDS_PER_SECOND = 1000000000;
-	static constexpr int UPDATE_AFTER_STEPS = 20;
+	static constexpr int UPDATE_AFTER_STEPS = 40;
 
 	bool running = true;
 
 	auto maxSpeedupTimer = Timer(NANO_SECONDS_PER_SECOND, [this]()
-		{
-			emit currentMaxSpeedup(m_emulator->getMaxSpeedup());
-		});
+	{
+		emit currentMaxSpeedup(m_emulator->getMaxSpeedup());
+	});
 
 	auto inputTimer = Timer(NANO_SECONDS_PER_SECOND / 100, [this]()
-		{
-			updateInput();
-		});
+	{
+		updateInput();
+	});
 
 	auto emulatorEventsTimer = Timer(NANO_SECONDS_PER_SECOND / 3, [this, &running]()
-		{
-			std::scoped_lock lock(m_emulatorEventsMutex);
-			running = !m_quit;
-			if (m_romToBeLoaded.empty())
-				return;
-			loadROM(m_romToBeLoaded);
-			m_romToBeLoaded.clear();
-		});
-
-	long long lastTimeStamp = ggb::getCurrentTimeInNanoSeconds();
-	int stepCounter = 0;
-	while (running)
 	{
-		if (!m_emulator->isCartridgeLoaded())
+		std::scoped_lock lock(m_emulatorEventsMutex);
+		running = !m_quit;
+		if (m_romToBeLoaded.empty())
+			return;
+		loadROM(m_romToBeLoaded);
+		m_romToBeLoaded.clear();
+	});
+
+	auto noCartridgeLoadedLoop = [this, &running, &emulatorEventsTimer]()
+	{
+		long long lastTimeStamp = ggb::getCurrentTimeInNanoSeconds();
+		while (running && !m_emulator->isCartridgeLoaded())
 		{
 			const auto currentTime = ggb::getCurrentTimeInNanoSeconds();
 			const auto timePast = currentTime - lastTimeStamp;
 			emulatorEventsTimer.update(timePast);
-			continue;
 		}
+	};
 
-		m_emulator->step();
-		if (m_gameRenderer->hasNewImage())
-			emit renderedImage(m_gameRenderer->getCurrentImage());
+	long long lastTimeStamp = ggb::getCurrentTimeInNanoSeconds();
+	int stepCounter = 0;
+	noCartridgeLoadedLoop();
+
+	while (running)
+	{
+		if constexpr (runPerformanceProfiling) 
+		{
+			m_emulator->stepAiMode();
+		}
+		else 
+		{
+			m_emulator->step();
+		}
 
 		stepCounter++;
 		if (stepCounter < UPDATE_AFTER_STEPS)
 			continue;
+
+		if (m_gameRenderer->hasNewImage())
+			emit renderedImage(m_gameRenderer->getCurrentImage());
 
 		stepCounter = 0;
 		const auto currentTime = ggb::getCurrentTimeInNanoSeconds();
@@ -186,6 +200,21 @@ void EmulatorThread::run()
 
 	saveCartridgeRAM();
 	saveCartridgeRTC();
+}
+
+void EmulatorThread::performanceProfiling()
+{
+	auto saveStatePath = std::filesystem::path(L"Savestates/Savestate1.bin");
+	if (!std::filesystem::exists(saveStatePath))
+	{
+		emit warning(QString("Savestate does not exist"));
+		return;
+	}
+
+	m_emulator->loadEmulatorState(saveStatePath);
+	m_emulator->setEmulationSpeed(999);
+	m_emulator->setColorCorrectionEnabled(false);
+	m_gameRenderer->setFrameSkip(23);
 }
 
 std::string EmulatorThread::getCartridgeName()
@@ -315,7 +344,7 @@ std::filesystem::path EmulatorThread::getFileSavePath(const std::string& fileNam
 		return {};
 
 	std::filesystem::path path = CARTRIDGE_DATA_BASE_PATH;
-	try 
+	try
 	{
 		if (!std::filesystem::exists(CARTRIDGE_DATA_BASE_PATH))
 			std::filesystem::create_directories(CARTRIDGE_DATA_BASE_PATH);
@@ -363,6 +392,7 @@ void EmulatorThread::updateInput()
 	}
 
 	m_inputHandler->update(m_keyStates);
+	m_emulator->setInputState(m_inputHandler->getCurrentState());
 }
 
 void EmulatorThread::handleEmulatorKeyPress(int key)
@@ -386,7 +416,7 @@ void EmulatorThread::handleEmulatorKeyPress(int key)
 	auto loadSavestate = [this](int number)
 	{
 		auto saveStatePath = SAVE_STATE_BASE_PATH / ("Savestate" + std::to_string(number) + SAVESTATE_FILE_ENDING);
-		if (!std::filesystem::exists(saveStatePath)) 
+		if (!std::filesystem::exists(saveStatePath))
 		{
 			emit warning(QString("Savestate %1 does not exist").arg(number));
 			return;
@@ -435,14 +465,14 @@ void EmulatorThread::handleEmulatorKeyPress(int key)
 			m_audioHandler->setAudioPlaying(true);
 		}
 	}
-	if (key == Qt::Key::Key_Pause) 
+	if (key == Qt::Key::Key_Pause)
 	{
-		if (m_emulator->isPaused()) 
+		if (m_emulator->isPaused())
 		{
 			m_emulator->resume();
 			m_audioHandler->setAudioPlaying(true);
 		}
-		else 
+		else
 		{
 			m_emulator->pause();
 			m_audioHandler->setAudioPlaying(false);

@@ -9,8 +9,11 @@ public:
 	void renderNewFrame(const ggb::FrameBuffer& framebuffer) override;
 	bool hasNewImage() const;
 	QImage getCurrentImage();
+	void setFrameSkip(int skipFrames);
 
 private:
+	int m_frameSkipCount = 0;
+	int m_skipImageCounter = 0;
 	bool m_hasNewImage = false;
 	QImage m_image;
 	int m_width;
