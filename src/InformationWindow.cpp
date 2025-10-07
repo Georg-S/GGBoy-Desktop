@@ -5,6 +5,7 @@ InformationWindow::InformationWindow(QWidget* parent)
 	, m_ui(new Ui::InformationWindow)
 {
 	m_ui->setupUi(this);
+	setWindowFlags(Qt::Window);
 }
 
 void InformationWindow::addSpeedup(double speedUp)

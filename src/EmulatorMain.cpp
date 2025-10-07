@@ -205,16 +205,10 @@ void EmulatorThread::run()
 void EmulatorThread::performanceProfiling()
 {
 	auto saveStatePath = std::filesystem::path(L"Savestates/Savestate1.bin");
-	if (!std::filesystem::exists(saveStatePath))
-	{
-		emit warning(QString("Savestate does not exist"));
-		return;
-	}
-
 	m_emulator->loadEmulatorState(saveStatePath);
 	m_emulator->setEmulationSpeed(999);
 	m_emulator->setColorCorrectionEnabled(false);
-	m_gameRenderer->setFrameSkip(23);
+	m_gameRenderer->setFrameSkip(19);
 }
 
 std::string EmulatorThread::getCartridgeName()

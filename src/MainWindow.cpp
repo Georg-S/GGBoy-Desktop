@@ -4,7 +4,7 @@ MainWindow::MainWindow() : QMainWindow(nullptr), m_ui(new Ui::MainWindow)
 {
 	m_ui->setupUi(this);
 	m_emulatorThread = new EmulatorThread(this);
-	m_informationWindow = std::make_unique<InformationWindow>();
+	m_informationWindow = std::make_unique<InformationWindow>(this);
 	m_informationWindow->hide();
 
 	connect(m_ui->actionOpenROM, &QAction::triggered, this, &MainWindow::openROM);
